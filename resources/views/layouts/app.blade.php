@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Dashboard') - Registrar Queuing System</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/signout.css') }}">
 </head>
 <body>
 
@@ -61,9 +62,10 @@
                     <strong>{{ Auth::user()->name }}</strong>
                     <span>System Admin</span>
                 </div>
-                <!-- FIXED LOGOUT LINK -->
-                <a href="{{ route('logout') }}" class="more-button" style="color: #dc2626; cursor: pointer; text-decoration: none;" title="Log Out">↪</a>
             </div>
+
+            <!-- SIGN OUT (button + confirmation modal) -->
+            @include('partials.signout')
         </div>
     </aside>
 
@@ -96,6 +98,7 @@
 </div>
 
 <script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ asset('js/signout.js') }}"></script>
 @yield('scripts')
 </body>
 </html>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Window - Staff</title>
     <link rel="stylesheet" href="{{ asset('css/staff.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/signout.css') }}">
 </head>
 <body>
 
@@ -46,9 +47,8 @@
                 </div>
             </div>
 
-            <a href="{{ route('logout') }}" class="logout-button" style="width: 100%; display: block; text-decoration: none; box-sizing: border-box;">
-                <span>↪</span> Sign Out
-            </a>
+            <!-- SIGN OUT (button + confirmation modal) -->
+            @include('partials.signout')
         </div>
     </aside>
 
@@ -206,5 +206,6 @@
 </div>
 
 <script src="{{ asset('js/staff.js') }}"></script>
+<script src="{{ asset('js/signout.js') }}"></script>
 </body>
 </html>
