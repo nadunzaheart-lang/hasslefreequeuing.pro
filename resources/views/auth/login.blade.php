@@ -3,109 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Registrar Queuing System</title>
-    
-    <!-- Keep Breeze's Tailwind for the form elements -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <style>
-        body {
-            background-color: #f3f4f6;
-            font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-        }
-        .login-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 420px;
-        }
-        .brand-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .brand-header img {
-            height: 80px;
-            margin: 0 auto 15px auto;
-        }
-        .brand-header h1 {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1e3a8a; /* Deep Registrar Blue */
-            margin: 0;
-        }
-        .brand-header p {
-            font-size: 13px;
-            color: #6b7280;
-            margin-top: 5px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-    </style>
-</head>
-<body class="antialiased flex items-center justify-center min-h-screen">
+    <meta name="theme-color" content="#4e0a10">
+    <title>{{ __('Login') }} - Registrar Queuing System</title>
 
-    <div class="login-card">
-        
-        <!-- BRANDING -->
-        <div class="brand-header">
-            <img src="{{ asset('images/logo.png') }}" alt="TCC Logo">
-            <h1>TAGOLOAN COMMUNITY COLLEGE</h1>
-            <p>REGISTRAR QUEUING SYSTEM</p>
+    <!-- FAVICON (public/favicon.ico in the project is an empty file, so we use the logo) -->
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-small.png') }}">
+
+    <!-- PAGE STYLES (no Tailwind CDN needed anymore) -->
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+
+    <!-- PAGE SCRIPT (show/hide password, Caps Lock hint, loading button) -->
+    <script src="{{ asset('js/login.js') }}" defer></script>
+</head>
+<body>
+
+    <main class="login-page">
+
+        <div class="login-card">
+
+            <!-- BRANDING -->
+            <header class="brand-header">
+                <!-- 80x80 display size, 160x160 file (sharp on high-DPI screens, ~58 KB instead of ~440 KB) -->
+                <img src="{{ asset('images/logo-small.png') }}" alt="Tagoloan Community College logo" width="80" height="80">
+                <h1>TAGOLOAN COMMUNITY COLLEGE</h1>
+                <p>REGISTRAR QUEUING SYSTEM</p>
+            </header>
+
+            <div class="welcome">
+                <h2>{{ __('Welcome') }}</h2>
+                <p>{{ __('TCC REGISTRAR QUEUING SYSTEM.') }}</p>
+            </div>
+
+            <!-- SESSION STATUS -->
+            @if (session('status'))
+                <div class="status-message" role="status">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <!-- LOGIN FORM -->
+            @php
+                /*
+                 * The backend reports every failed login as ONE generic message on
+                 * "email" (it cannot say which field was wrong). Here we decide which
+                 * field the message belongs to, so each error shows under its own input:
+                 *   - email not registered  -> error under Email
+                 *   - email found, wrong pw -> error under Password
+                 * Any other message (empty field, bad format, too many attempts)
+                 * stays exactly where the backend put it.
+                 */
+                $emailError    = $errors->first('email');
+                $passwordError = $errors->first('password');
+
+                if ($emailError !== '' && $emailError === trans('auth.failed')) {
+                    $emailExists = \App\Models\User::where('email', old('email'))->exists();
+
+                    if ($emailExists) {
+                        $emailError    = '';
+                        $passwordError = __('Incorrect password. Please try again.');
+                    } else {
+                        $emailError = __('No account found with this email address.');
+                    }
+                }
+            @endphp
+
+            <form method="POST" action="{{ route('login') }}" id="loginForm">
+                @csrf
+
+                <!-- Email Address -->
+                <div class="field {{ $emailError ? 'has-error' : '' }}">
+                    <label for="email">{{ __('Email') }}</label>
+                    <input
+                        id="email"
+                        type="email"
+                        name="email"
+                        value="{{ old('email') }}"
+                        required
+                        @if (! $passwordError || $emailError) autofocus @endif
+                        autocomplete="username"
+                        @if ($emailError) aria-invalid="true" aria-describedby="email-error" @endif
+                    >
+                    @if ($emailError)
+                        <p class="field-error" id="email-error" role="alert">{{ $emailError }}</p>
+                    @endif
+                </div>
+
+                <!-- Password -->
+                <div class="field {{ $passwordError ? 'has-error' : '' }}">
+                    <label for="password">{{ __('Password') }}</label>
+
+                    <div class="password-wrap">
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            required
+                            @if ($passwordError && ! $emailError) autofocus @endif
+                            autocomplete="current-password"
+                            @if ($passwordError) aria-invalid="true" aria-describedby="password-error" @endif
+                        >
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            id="togglePassword"
+                            aria-label="{{ __('Show password') }}"
+                            aria-controls="password"
+                            aria-pressed="false"
+                        >
+                            <!-- eye icon (shown while password is hidden) -->
+                            <svg class="icon-eye" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <!-- eye-off icon (shown while password is visible) -->
+                            <svg class="icon-eye-off" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                                <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Caps Lock hint (hidden until Caps Lock is detected) -->
+                    <p class="caps-hint" id="capsHint" role="status" hidden>
+                        {{ __('Caps Lock is on') }}
+                    </p>
+
+                    @if ($passwordError)
+                        <p class="field-error" id="password-error" role="alert">{{ $passwordError }}</p>
+                    @endif
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-login" id="loginButton">
+                    <span class="spinner" aria-hidden="true"></span>
+                    <span class="btn-text">{{ __('Log in') }}</span>
+                </button>
+            </form>
+
+            <!-- HELP -->
+            <p class="help-text">
+                {{ __('Forgot your password? Please approach your system administrator.') }}
+            </p>
         </div>
 
-        <!-- SESSION STATUS -->
-        @if (session('status'))
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ session('status') }}
-            </div>
-        @endif
+        <footer class="login-footer">
+            &copy; {{ date('Y') }} Tagoloan Community College &middot; Registrar's Office
+        </footer>
 
-        <!-- LOGIN FORM -->
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <!-- Email Address -->
-            <div>
-                <label for="email" class="block font-medium text-sm text-gray-700">Email</label>
-                <input id="email" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-                @error('email')
-                    <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <!-- Password -->
-            <div class="mt-4">
-                <label for="password" class="block font-medium text-sm text-gray-700">Password</label>
-                <input id="password" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" type="password" name="password" required autocomplete="current-password" />
-                @error('password')
-                    <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <!-- Remember Me & Forgot Password -->
-            <div class="flex items-center justify-between mt-4">
-                <label for="remember_me" class="inline-flex items-center">
-                    <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                    <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-                </label>
-
-                @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
-                    </a>
-                @endif
-            </div>
-
-            <!-- Submit Button -->
-            <div class="mt-6">
-                <button type="submit" style="background-color: #1e3a8a; color: white;" class="w-full justify-center py-2 px-4 border border-transparent rounded-md font-semibold text-sm uppercase tracking-widest hover:bg-blue-900 focus:bg-blue-900 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                    {{ __('Log in') }}
-                </button>
-            </div>
-        </form>
-    </div>
+    </main>
 
 </body>
 </html>
