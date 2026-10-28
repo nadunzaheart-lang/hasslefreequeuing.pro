@@ -1,0 +1,296 @@
+/* =========================================================
+   REGISTRAR QUEUING SYSTEM
+   SIGN OUT BUTTON + CONFIRMATION MODAL  (public/css/signout.css)
+
+   Shared by the admin layout and the staff dashboard.
+   Only styles the sign out button and its modal. Nothing else
+   in app.css or staff.css is changed.
+   ========================================================= */
+
+:root {
+    --color-primary: #4e0a10;
+    --color-primary-dark: #3a070c;
+    --color-primary-light: #640d14;
+    --color-accent: #C9952A;
+    --color-accent-light: #F5C842;
+    --color-bg: #F7F4F0;
+    --color-surface: #FFFFFF;
+    --color-sidebar-bg: #4e0a10;
+    --color-sidebar-text: #E8D5C4;
+    --color-text: #1A1410;
+    --color-muted: #7A6E67;
+    --color-border: #E2D9D0;
+}
+
+
+/* =========================================================
+   SIGN OUT BUTTON (sidebar)
+   ========================================================= */
+
+.signout-trigger {
+    width: 100%;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 0 14px;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+
+    color: var(--color-primary);
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.signout-trigger svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.signout-trigger:hover {
+    color: var(--color-surface);
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.signout-trigger:active {
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+}
+
+.signout-trigger:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+/* Admin sidebar only: small gap under the user row */
+.sidebar-bottom .signout-trigger {
+    margin-top: 4px;
+}
+
+
+/* =========================================================
+   CONFIRMATION MODAL
+   ========================================================= */
+
+.signout-dialog {
+    /* "margin: auto" is needed because app.css / staff.css reset
+       every element to margin: 0, which would push the modal to
+       the top-left corner */
+    margin: auto;
+    padding: 0;
+
+    width: calc(100% - 32px);
+    max-width: 400px;
+
+    color: var(--color-text);
+    background: var(--color-surface);
+
+    border: 0;
+    border-top: 4px solid var(--color-accent);
+    border-radius: 12px;
+
+    box-shadow:
+        0 24px 48px -12px rgba(26, 20, 16, 0.35),
+        0 8px 16px -8px rgba(26, 20, 16, 0.20);
+
+    overflow: hidden;
+}
+
+.signout-dialog::backdrop {
+    background: rgba(26, 20, 16, 0.55);
+}
+
+.signout-dialog[open] {
+    animation: signout-pop 0.18s ease-out;
+}
+
+.signout-dialog[open]::backdrop {
+    animation: signout-fade 0.18s ease-out;
+}
+
+@keyframes signout-pop {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes signout-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Stops the page behind the modal from scrolling (class is added by signout.js) */
+html.signout-open {
+    overflow: hidden;
+}
+
+
+/* ---------- Modal content ---------- */
+
+.signout-dialog__body {
+    padding: 28px 24px 20px;
+    text-align: center;
+}
+
+.signout-dialog__icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-primary);
+    background: rgba(78, 10, 16, 0.08); /* --color-primary at 8% */
+    border-radius: 50%;
+}
+
+.signout-dialog__icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.signout-dialog__body h2 {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--color-text);
+}
+
+.signout-dialog__body p {
+    margin-top: 6px;
+
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-muted);
+}
+
+
+/* ---------- Modal buttons ---------- */
+
+.signout-dialog__actions {
+    display: flex;
+    gap: 10px;
+
+    padding: 0 24px 24px;
+}
+
+.signout-btn {
+    flex: 1;
+    height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.signout-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+/* Cancel = neutral */
+.signout-btn--cancel {
+    color: var(--color-text);
+    background: var(--color-surface);
+    border-color: var(--color-border);
+}
+
+.signout-btn--cancel:hover {
+    background: var(--color-bg);
+}
+
+/* Confirm = maroon */
+.signout-btn--confirm {
+    color: var(--color-surface);
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.signout-btn--confirm:hover {
+    background: var(--color-primary-light);
+    border-color: var(--color-primary-light);
+}
+
+.signout-btn--confirm:active {
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .signout-dialog__body {
+        padding: 24px 18px 18px;
+    }
+
+    .signout-dialog__actions {
+        flex-direction: column-reverse; /* Sign out on top, Cancel below */
+        padding: 0 18px 20px;
+    }
+
+    .signout-btn {
+        flex: none;  /* keep the full 42px height when stacked */
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .signout-dialog[open],
+    .signout-dialog[open]::backdrop {
+        animation: none;
+    }
+
+    .signout-trigger,
+    .signout-btn {
+        transition: none;
+    }
+}
