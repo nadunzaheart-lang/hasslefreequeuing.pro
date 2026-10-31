@@ -27,15 +27,15 @@
     </header>
 
     <section class="transaction-screen">
-        <div class="form-heading" style="text-align: center; margin-bottom: 20px;">
+        <div class="form-heading transaction-heading" style="text-align: left; margin-bottom: 20px;">
             <span class="form-label">REGISTRAR SERVICES</span>
             <h2>What do you need today?</h2>
             <p>Select all the transactions you need to process.</p>
         </div>
 
-        <form id="transaction-form" action="{{ route('kiosk.transaction.store') }}" method="POST" style="flex-grow: 1; display: flex; flex-direction: column;">
+        <form id="transaction-form" class="transaction-form" action="{{ route('kiosk.transaction.store') }}" method="POST">
             @csrf
-            <div class="transaction-grid" style="flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div class="transaction-grid">
                 <label class="transaction-card">
                     <input type="checkbox" name="transactions[]" value="Enrollment Validation" class="transaction-checkbox">
                     <div class="transaction-icon blue">✓</div>
@@ -66,6 +66,12 @@
                     <div class="transaction-text"><h3>Other Concern</h3><p>For other registrar-related concerns.</p></div>
                     <span class="transaction-check">✓</span><span class="transaction-arrow">→</span>
                 </label>
+
+                <!-- Shown only when "Other Concern" is selected -->
+                <div class="other-concern-panel" id="other-concern-panel" hidden>
+                    <label for="other-concern-input" class="other-concern-label">What service do you need?</label>
+                    <input type="text" id="other-concern-input" class="other-concern-input" maxlength="100" autocomplete="off" placeholder="Type your specific concern here...">
+                </div>
             </div>
 
             <div class="transaction-bottom">
@@ -88,6 +94,18 @@
     const cards = document.querySelectorAll('.transaction-card');
     const continueButton = document.getElementById('continue-button');
 
+    // "Other Concern" free-text field
+    const otherCheckbox = document.querySelector('.transaction-checkbox[value="Other Concern"]');
+    const otherPanel = document.getElementById('other-concern-panel');
+    const otherInput = document.getElementById('other-concern-input');
+
+    // Sends the typed text along with the existing transactions[] value,
+    // e.g. "Other Concern: Request for diploma replacement"
+    function syncOtherValue() {
+        const text = otherInput.value.trim();
+        otherCheckbox.value = text ? 'Other Concern: ' + text : 'Other Concern';
+    }
+
     function updateSelection() {
         let selected = 0;
         checkboxes.forEach((checkbox, index) => {
@@ -99,8 +117,20 @@
                 card.classList.remove('selected');
             }
         });
-        continueButton.disabled = selected === 0;
+
+        const otherChecked = otherCheckbox.checked;
+        otherPanel.hidden = !otherChecked;
+        syncOtherValue();
+
+        // If "Other Concern" is chosen, the user must describe it first
+        const otherMissing = otherChecked && otherInput.value.trim() === '';
+        continueButton.disabled = selected === 0 || otherMissing;
     }
+
+    otherCheckbox.addEventListener('change', () => {
+        if (otherCheckbox.checked) otherInput.focus();
+    });
+    otherInput.addEventListener('input', updateSelection);
 
     checkboxes.forEach((checkbox) => {
         checkbox.addEventListener('change', updateSelection);

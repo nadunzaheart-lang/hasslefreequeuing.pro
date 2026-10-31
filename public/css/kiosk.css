@@ -1357,3 +1357,324 @@ img.kiosk-logo {
 
     cursor: not-allowed;
 }
+
+
+/* =========================================================
+   TRANSACTION PAGE LAYOUT (registrar services)
+   - left-aligned heading
+   - 2-column card grid (5th card sits in the left column)
+   - Back / Continue aligned to the left column
+   - "Other Concern" input appears in the empty right cell
+   ========================================================= */
+
+.kiosk-screen .transaction-screen {
+    justify-content: center;
+}
+
+.transaction-heading {
+    text-align: left !important;
+}
+
+.transaction-screen .transaction-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.transaction-screen .transaction-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+    margin-bottom: 20px;
+}
+
+.transaction-screen .transaction-bottom {
+    width: calc((100% - 13px) / 2);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.transaction-screen .kiosk-continue-button {
+    margin-left: 0;
+}
+
+/* OTHER CONCERN INPUT */
+
+.other-concern-panel {
+    min-height: 110px;
+    padding: 18px;
+
+    background: var(--white);
+    border: 1px solid #2563eb;
+    border-radius: 12px;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.other-concern-panel[hidden] {
+    display: none;
+}
+
+.other-concern-label {
+    color: var(--text-dark);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.other-concern-input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 14px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #f8fafc;
+
+    color: var(--text-dark);
+    font-size: 14px;
+    font-family: inherit;
+
+    box-sizing: border-box;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.other-concern-input:focus {
+    border-color: #2563eb;
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+@media (max-width: 650px) {
+    .transaction-screen .transaction-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .transaction-screen .transaction-bottom {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   KIOSK THEME - REQUIRED COLOR PALETTE (system requirement)
+   Based on the TCC logo colors (maroon + gold).
+   - Defines the official palette tokens
+   - Re-maps the legacy variables above to the palette, so every
+     existing rule that uses var(--primary), var(--border), etc.
+     is recolored automatically
+   - Overrides the few hard-coded blue/slate values
+   Loaded last on purpose so it wins over the earlier rules.
+   ========================================================= */
+
+:root {
+    /* Official palette */
+    --color-primary: #4e0a10;
+    --color-primary-dark: #3a070c;
+    --color-primary-light: #640d14;
+    --color-accent: #C9952A;
+    --color-accent-light: #F5C842;
+    --color-bg: #F7F4F0;
+    --color-surface: #FFFFFF;
+    --color-sidebar-bg: #4e0a10;
+    --color-sidebar-text: #E8D5C4;
+    --color-text: #1A1410;
+    --color-muted: #7A6E67;
+    --color-border: #E2D9D0;
+
+    /* Soft tints derived from the palette (for light backgrounds) */
+    --tint-primary: rgba(78, 10, 16, 0.07);
+    --tint-primary-light: rgba(100, 13, 20, 0.08);
+    --tint-accent: rgba(201, 149, 42, 0.15);
+    --tint-accent-light: rgba(245, 200, 66, 0.22);
+
+    /* Legacy variables -> palette */
+    --primary: var(--color-primary);
+    --primary-dark: var(--color-primary-dark);
+    --primary-light: var(--tint-primary);
+
+    --success: var(--color-accent);
+    --success-light: var(--tint-accent);
+
+    --orange: var(--color-accent);
+    --orange-light: var(--tint-accent-light);
+
+    --purple: var(--color-primary-light);
+    --purple-light: var(--tint-primary-light);
+
+    --background: var(--color-bg);
+    --white: var(--color-surface);
+
+    --text-dark: var(--color-text);
+    --text: var(--color-text);
+    --text-light: var(--color-muted);
+    --text-muted: var(--color-muted);
+
+    --border: var(--color-border);
+}
+
+
+/* HEADER */
+
+.kiosk-header {
+    border-bottom-color: var(--color-accent);
+}
+
+
+/* FULLSCREEN / EXIT BUTTON */
+
+.kiosk-fullscreen-toggle:hover {
+    border-color: rgba(78, 10, 16, 0.4);
+    box-shadow: 0 4px 12px rgba(78, 10, 16, 0.14);
+}
+
+.kiosk-fullscreen-toggle.is-fullscreen {
+    border-color: rgba(78, 10, 16, 0.35);
+}
+
+
+/* WELCOME */
+
+.welcome-icon {
+    box-shadow: 0 12px 30px rgba(78, 10, 16, 0.25);
+}
+
+.kiosk-primary-button {
+    box-shadow: 0 8px 20px rgba(78, 10, 16, 0.25);
+}
+
+
+/* STUDENT FORM */
+
+.student-form {
+    box-shadow: 0 5px 20px rgba(26, 20, 16, 0.06);
+}
+
+.form-group input,
+.form-group select {
+    border-color: var(--color-border);
+}
+
+.form-group input::placeholder {
+    color: var(--color-muted);
+    opacity: 0.6;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(201, 149, 42, 0.30);
+}
+
+.kiosk-back-button:hover {
+    background: var(--color-bg);
+}
+
+
+/* TRANSACTION CARDS */
+
+.transaction-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 8px 25px rgba(201, 149, 42, 0.18);
+}
+
+.transaction-icon.blue {
+    background: var(--tint-primary);
+    color: var(--color-primary);
+}
+
+.transaction-icon.green {
+    background: var(--tint-accent);
+    color: var(--color-accent);
+}
+
+.transaction-icon.purple {
+    background: var(--tint-primary-light);
+    color: var(--color-primary-light);
+}
+
+.transaction-icon.orange {
+    background: var(--tint-accent-light);
+    color: var(--color-accent);
+}
+
+.transaction-icon.gray {
+    background: var(--color-bg);
+    color: var(--color-muted);
+}
+
+.transaction-card.selected {
+    border-color: var(--color-primary);
+    background: #fbf6f1;
+    box-shadow: 0 0 0 3px rgba(201, 149, 42, 0.28);
+}
+
+.transaction-check {
+    background: var(--color-border);
+}
+
+.transaction-card.selected .transaction-check {
+    background: var(--color-primary);
+    color: var(--color-accent-light);
+}
+
+.transaction-card.selected .transaction-arrow {
+    color: var(--color-primary);
+}
+
+.selection-info {
+    color: var(--color-muted);
+}
+
+
+/* CONTINUE BUTTON */
+
+.kiosk-continue-button {
+    background: var(--color-primary);
+    color: var(--color-surface);
+}
+
+.kiosk-continue-button:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+}
+
+.kiosk-continue-button:disabled {
+    background: var(--color-border);
+    color: var(--color-muted);
+}
+
+
+/* OTHER CONCERN INPUT */
+
+.other-concern-panel {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(201, 149, 42, 0.28);
+}
+
+.other-concern-input {
+    background: var(--color-bg);
+}
+
+.other-concern-input::placeholder {
+    color: var(--color-muted);
+    opacity: 0.7;
+}
+
+.other-concern-input:focus {
+    border-color: var(--color-primary);
+    background: var(--color-surface);
+    box-shadow: 0 0 0 3px rgba(201, 149, 42, 0.30);
+}
+
+
+/* QUEUE RESULT */
+
+.return-message {
+    background: var(--tint-accent);
+    border-color: rgba(201, 149, 42, 0.40);
+}

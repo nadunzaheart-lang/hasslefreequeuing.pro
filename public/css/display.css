@@ -540,3 +540,191 @@ body {
     opacity: 0;
     pointer-events: none;
 }
+
+
+/* =========================================================
+   DISPLAY THEME - REQUIRED COLOR PALETTE (system requirement)
+   Based on the TCC logo colors (maroon + gold).
+   Added last on purpose so it overrides the earlier colors.
+   Only colors are changed here - no layout or behavior.
+   ========================================================= */
+
+:root {
+    --color-primary: #4e0a10;
+    --color-primary-dark: #3a070c;
+    --color-primary-light: #640d14;
+    --color-accent: #C9952A;
+    --color-accent-light: #F5C842;
+    --color-bg: #F7F4F0;
+    --color-surface: #FFFFFF;
+    --color-sidebar-bg: #4e0a10;
+    --color-sidebar-text: #E8D5C4;
+    --color-text: #1A1410;
+    --color-muted: #7A6E67;
+    --color-border: #E2D9D0;
+}
+
+/* PAGE */
+
+body {
+    background: var(--color-primary-dark);
+    color: var(--color-surface);
+}
+
+/* HEADER */
+
+.display-header {
+    background: var(--color-primary);
+    border-bottom: 2px solid var(--color-accent);
+}
+
+.brand-icon {
+    /* transparent logo (logo2.png): no box, no stretching */
+    width: 78px;
+    height: 78px;
+    object-fit: contain;
+    background: transparent;
+    border-radius: 0;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}
+
+.school-brand span {
+    color: var(--color-sidebar-text);
+}
+
+.school-details h3 {
+    color: var(--color-accent-light);
+}
+
+#current-date {
+    color: var(--color-sidebar-text);
+}
+
+/* SECTION TITLE */
+
+.section-title h2 {
+    color: var(--color-accent-light);
+}
+
+.title-line {
+    background: var(--color-accent);
+    opacity: 0.55;
+}
+
+/* WINDOW CARDS */
+
+.window-card {
+    background: var(--color-primary);
+    border-color: var(--color-primary-light);
+}
+
+.window-card.active {
+    background: var(--color-primary-light);
+    border-color: var(--color-accent);
+}
+
+.window-header {
+    color: var(--color-sidebar-text);
+}
+
+.window-header strong {
+    color: var(--color-surface);
+}
+
+.queue-number {
+    color: var(--color-surface);
+}
+
+.window-card.active .queue-number {
+    color: var(--color-accent-light);
+}
+
+.window-card.available .queue-number {
+    color: var(--color-sidebar-text);
+}
+
+.window-status {
+    background: var(--color-accent);
+    color: var(--color-primary-dark);
+}
+
+.window-card.available .window-status {
+    background: var(--color-primary-light);
+    color: var(--color-sidebar-text);
+}
+
+/* ANNOUNCEMENT */
+
+.announcement-section {
+    background: var(--color-primary-light);
+    border-color: var(--color-accent);
+}
+
+.announcement-label {
+    background: var(--color-accent);
+    color: var(--color-primary-dark);
+}
+
+.announcement-queue {
+    color: var(--color-accent-light);
+}
+
+.announcement-message strong {
+    color: var(--color-sidebar-text);
+}
+
+.announcement-message span {
+    color: var(--color-surface);
+}
+
+/* BOTTOM */
+
+.next-queue,
+.display-instruction {
+    background: var(--color-primary);
+    border-color: var(--color-primary-light);
+}
+
+.bottom-title {
+    color: var(--color-accent);
+}
+
+.next-item {
+    background: var(--color-primary-light);
+    color: var(--color-surface);
+}
+
+.instruction-icon {
+    background: var(--color-accent);
+    color: var(--color-primary-dark);
+}
+
+.display-instruction h3 {
+    color: var(--color-surface);
+}
+
+.display-instruction h5,
+.display-instruction p {
+    color: var(--color-sidebar-text);
+}
+
+/* FOOTER */
+
+.display-footer {
+    background: var(--color-primary-dark);
+    color: var(--color-sidebar-text);
+}
+
+/* FULL SCREEN BUTTON */
+
+.fullscreen-btn {
+    background: var(--color-primary-light);
+    border-color: var(--color-accent);
+    color: var(--color-surface);
+}
+
+.fullscreen-btn:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-primary-dark);
+}

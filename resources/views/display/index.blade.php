@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Public Display - Registrar Queuing System</title>
     <link rel="stylesheet" href="{{ asset('css/display.css') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo2.png') }}">
 </head>
 <body>
 
     <div class="display-screen" id="display-screen">
         <header class="display-header">
             <div class="school-brand">
-                <img src="{{ asset('images/logo2.jpeg') }}" alt="TCC Logo" class="brand-icon">
+                <img src="{{ asset('images/logo2.png') }}" alt="TCC Logo" class="brand-icon">
                 <div class="school-details">
                     <h1>TAGOLOAN COMMUNITY COLLEGE</h1>
                     <h3>SCHOOL REGISTRAR</h3>
@@ -109,12 +110,12 @@
         // --- UPDATE THE UI ---
         function renderUI(data) {
             const windowsGrid = document.getElementById('windows-grid');
-            windowsGrid.innerHTML = ''; 
-            
+            windowsGrid.innerHTML = '';
+
             for (let i = 1; i <= 5; i++) {
                 const windowId = String(i).padStart(2, '0');
                 const queue = data.windows[windowId];
-                
+
                 if (queue) {
                     windowsGrid.innerHTML += `
                         <div class="window-card active">
@@ -178,17 +179,17 @@
                 // Natural phrasing
                 const message = `Queue number ${spokenNumber}, please proceed to Registrar Window ${spokenWindow}`;
                 const utterance = new SpeechSynthesisUtterance(message);
-                
+
                 // Find the best male voice available on the system
                 const voices = window.speechSynthesis.getVoices();
-                let selectedVoice = voices.find(v => 
-                    v.name === 'Google UK English Male' || 
+                let selectedVoice = voices.find(v =>
+                    v.name === 'Google UK English Male' ||
                     v.name === 'Microsoft David - English (United States)' ||
                     v.name.includes('Male')
                 );
-                
+
                 if (selectedVoice) utterance.voice = selectedVoice;
-                
+
                 // --- HUMAN VOICE TUNING ---
                 utterance.rate = 0.8;    // Speaks a bit slower (more professional)
                 utterance.pitch = 0.85;  // Slightly deeper tone
@@ -202,7 +203,7 @@
                 // Pause for 1.5 seconds between the 3 repeats
                 if (i < 2) await new Promise(r => setTimeout(r, 1500));
             }
-            
+
             isBusySpeaking = false;
             processVoiceQueue(); // Check if there is another number waiting to be announced
         }
