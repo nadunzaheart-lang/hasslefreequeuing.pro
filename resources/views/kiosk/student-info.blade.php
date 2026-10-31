@@ -6,6 +6,11 @@
     <title>Student Information</title>
     <link rel="stylesheet" href="{{ asset('css/kiosk.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        .kiosk-screen { height: 100vh; display: flex; flex-direction: column; }
+        .form-screen { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+    </style>
 </head>
 <body class="kiosk-body">
 
@@ -13,21 +18,11 @@
     <header class="kiosk-header">
         <div class="kiosk-brand">
             <img src="{{ asset('images/logo.png') }}" alt="TCC Logo" class="kiosk-logo">
-            <div>
-                <h1>Tagoloan Community College - Registrar</h1>
-            </div>
+            <div><h1>Tagoloan Community College - Registrar</h1></div>
         </div>
         <div class="kiosk-header-actions">
             <div class="step-indicator">STEP 1 OF 3</div>
-            <button type="button" class="kiosk-fullscreen-toggle" id="kioskFullscreenBtn" onclick="toggleKioskFullscreen()" aria-label="Toggle Fullscreen" title="Full Screen">
-                <svg class="fullscreen-icon-enter" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-                </svg>
-                <svg class="fullscreen-icon-exit" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
-                </svg>
-                <span class="fullscreen-btn-text">Full Screen</span>
-            </button>
+            <!-- FULLSCREEN BUTTON REMOVED -->
         </div>
     </header>
 
@@ -38,7 +33,7 @@
             <p>Please enter your information correctly.</p>
         </div>
 
-        <form action="{{ route('kiosk.student-info.store') }}" method="POST" class="student-form">
+        <form action="{{ route('kiosk.student-info.store') }}" method="POST" class="student-form" style="width: 100%; max-width: 800px;">
             @csrf
             <div class="form-group">
                 <label for="student_id">Student ID</label>
@@ -66,7 +61,6 @@
                         @endforeach
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="year_level">Year Level</label>
                     <select id="year_level" name="year_level" required>
@@ -94,7 +88,5 @@
         <span>Step 1 of 3</span>
     </footer>
 </main>
-
-<script src="{{ asset('js/kiosk.js') }}"></script>
 </body>
 </html>

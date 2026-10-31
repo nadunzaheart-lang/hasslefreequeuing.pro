@@ -11,22 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Redirect users AFTER login based on role
-        $middleware->redirectUsersTo(function () {
-            if (auth()->check()) {
-                return auth()->user()->is_admin ? '/admin/dashboard' : '/staff';
-            }
-            return '/login';
-        });
-
-        // Redirect guests to login, BUT don't loop if they are already there
-        $middleware->redirectGuestsTo(function () {
-            // If the current page is already login, don't redirect
-            if (request()->is('login')) {
-                return null; 
-            }
-            return '/login';
-        });
+        // This stops the 419 error on these specific forms
+        $middleware->validateCsrfTokens(except: [
+            'kiosk/*',
+            'logout',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

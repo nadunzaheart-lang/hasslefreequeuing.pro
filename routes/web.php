@@ -9,7 +9,6 @@ use App\Http\Controllers\DisplayController;
 
 Route::get('/', function () {
     if (auth()->check()) {
-        // If Admin, go to Admin Dashboard. If Staff, go to Staff.
         if (auth()->user()->is_admin) {
             return redirect('/admin/dashboard');
         }
@@ -45,6 +44,8 @@ Route::get('/kiosk/transaction', function () { return view('kiosk.transaction');
 Route::post('/kiosk/transaction', [KioskController::class, 'storeTransaction'])->name('kiosk.transaction.store');
 Route::get('/kiosk/queue-number', [KioskController::class, 'showQueueNumber'])->name('kiosk.queue-number');
 
+// Display Routes
 Route::get('/display', [DisplayController::class, 'index'])->name('display');
+Route::get('/display/data', [DisplayController::class, 'getData'])->name('display.data');
 
 require __DIR__.'/auth.php';

@@ -10,7 +10,6 @@ class KioskController extends Controller
 {
     public function createStudentInfo()
     {
-        // Fetch ALL courses from the database
         $courses = Course::orderBy('course_name', 'asc')->get();
         return view('kiosk.student-info', compact('courses'));
     }
@@ -40,13 +39,35 @@ class KioskController extends Controller
 
         $transactionList = implode(', ', $validated['transactions']);
         
-        // Find the course to get the assigned window
         $courseRecord = Course::where('course_name', $student['course'])->first();
         $assignedWindow = $courseRecord ? $courseRecord->window_number : '01';
 
-        $lastQueue = Queue::whereDate('created_at', today())->orderByDesc('id')->first();
-        $nextNumber = $lastQueue ? ((int) substr($lastQueue->queue_number, 2)) + 1 : 101;
-        $queueNumber = 'A-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        // DETERMINE THE LETTER BASED ON WINDOW (1=A, 2=B, 3=C, 4=D, 5=E)
+        $letters = [
+            '01' => 'A',
+            '02' => 'B',
+            '03' => 'C',
+            '04' => 'D',
+            '05' => 'E'
+        ];
+        $prefix = $letters[$assignedWindow] ?? 'A';
+
+        // Count how many queues exist for THIS specific window today to generate the number
+        $lastQueue = Queue::whereDate('created_at', today())
+            ->where('window_number', $assignedWindow)
+            ->orderByDesc('id')
+            ->first();
+
+        if ($lastQueue) {
+            // If the last ticket was A-005, extract the 5 and add 1
+            $lastNumber = (int) substr($lastQueue->queue_number, 2);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        // This creates A-001, B-001, etc.
+        $queueNumber = $prefix . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
         $queue = Queue::create([
             'queue_number' => $queueNumber,

@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <div class="display-screen">
+    <div class="display-screen" id="display-screen">
         <header class="display-header">
             <div class="school-brand">
                 <img src="{{ asset('images/logo2.jpeg') }}" alt="TCC Logo" class="brand-icon">
@@ -17,7 +17,7 @@
                     <h3>SCHOOL REGISTRAR</h3>
                 </div>
             </div>
-            <button id="fullscreen-btn" class="fullscreen-btn" onclick="toggleFullscreen()">
+            <button id="fullscreen-btn" class="fullscreen-btn" onclick="toggleFullScreen()">
                 ⛶ FULL SCREEN
             </button>
             <div class="header-time">
@@ -33,77 +33,25 @@
                     <h2>NOW SERVING</h2>
                     <span class="title-line"></span>
                 </div>
-
-                <div class="windows-grid">
-                    @for ($i = 1; $i <= 5; $i++)
-                        @php
-                            $windowId = str_pad($i, 2, '0', STR_PAD_LEFT);
-                            $isServing = isset($windows[$windowId]);
-                            $queue = $isServing ? $windows[$windowId] : null;
-                        @endphp
-
-                        @if($isServing)
-                            <div class="window-card active">
-                                <div class="window-header">
-                                    <span>REGISTRAR WINDOW</span>
-                                    <strong>{{ $windowId }}</strong>
-                                </div>
-                                <div class="queue-number">
-                                    {{ $queue->queue_number }}
-                                </div>
-                                <div class="window-status">
-                                    NOW SERVING
-                                </div>
-                            </div>
-                        @else
-                            <div class="window-card available">
-                                <div class="window-header">
-                                    <span>REGISTRAR WINDOW</span>
-                                    <strong>{{ $windowId }}</strong>
-                                </div>
-                                <div class="queue-number">
-                                    —
-                                </div>
-                                <div class="window-status">
-                                    AVAILABLE
-                                </div>
-                            </div>
-                        @endif
-                    @endfor
-                </div>
+                <div class="windows-grid" id="windows-grid"></div>
             </section>
 
-            @php
-                $latestCall = count($windows) > 0 ? end($windows) : null;
-            @endphp
             <section class="announcement-section">
-                <div class="announcement-label">
-                    NOW CALLING
-                </div>
+                <div class="announcement-label">NOW CALLING</div>
                 <div class="announcement-content">
-                    <div class="announcement-queue">
-                        {{ $latestCall ? $latestCall->queue_number : '—' }}
-                    </div>
+                    <div class="announcement-queue" id="latest-queue">—</div>
                     <div class="announcement-message">
                         <strong>Please proceed to</strong>
-                        <span>REGISTRAR WINDOW {{ $latestCall ? array_search($latestCall, $windows) : '01' }}</span>
+                        <span id="latest-window">REGISTRAR WINDOW</span>
                     </div>
                 </div>
             </section>
 
             <section class="bottom-section">
                 <div class="next-queue">
-                    <div class="bottom-title">
-                        NEXT IN QUEUE
-                    </div>
-                    <div class="next-list">
-                        @forelse($waiting as $w)
-                            <div class="next-item">
-                                <span>{{ $w->queue_number }}</span>
-                            </div>
-                        @empty
-                            <div class="next-item" style="opacity: 0.5;"><span>—</span></div>
-                        @endforelse
+                    <div class="bottom-title">NEXT IN QUEUE</div>
+                    <div class="next-list" id="next-list">
+                        <div class="next-item" style="opacity: 0.5;"><span>—</span></div>
                     </div>
                 </div>
                 <div class="display-instruction">
@@ -123,38 +71,115 @@
     </div>
 
     <script>
-        const activeWindows = [
-            @foreach($windows as $winNum => $queue)
-                { window: "{{ $winNum }}", queue: "{{ $queue->queue_number }}" },
-            @endforeach
-        ];
-        
         let lastAnnounced = {};
         let isBusySpeaking = false;
-        let audioUnlocked = false;
+        let voiceQueue = [];
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch((err) => console.log(err));
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
 
         // Unlock audio on first click
-        document.body.addEventListener('click', () => {
-            if (!audioUnlocked) {
-                audioUnlocked = true;
-                // Play a silent utterance to wake up the browser's audio engine
-                let silent = new SpeechSynthesisUtterance(" ");
-                silent.volume = 0;
-                window.speechSynthesis.speak(silent);
-            }
+        window.addEventListener('load', () => {
+            let silentUtterance = new SpeechSynthesisUtterance(" ");
+            silentUtterance.volume = 0;
+            window.speechSynthesis.speak(silentUtterance);
+            fetchData(); // Start fetching immediately
         });
 
-        async function speakAnnouncement(winNum, queueNum) {
-            if (!audioUnlocked || isBusySpeaking) return;
+        // --- FAST FETCH DATA ---
+        function fetchData() {
+            fetch('/display/data')
+                .then(response => response.json())
+                .then(data => {
+                    renderUI(data);
+                    checkForNewCalls(data);
+                    setTimeout(fetchData, 1000); // Fetch again 1 second later
+                })
+                .catch(err => {
+                    console.log("Error fetching data:", err);
+                    setTimeout(fetchData, 3000); // Retry after 3 seconds if error
+                });
+        }
+
+        // --- UPDATE THE UI ---
+        function renderUI(data) {
+            const windowsGrid = document.getElementById('windows-grid');
+            windowsGrid.innerHTML = ''; 
+            
+            for (let i = 1; i <= 5; i++) {
+                const windowId = String(i).padStart(2, '0');
+                const queue = data.windows[windowId];
+                
+                if (queue) {
+                    windowsGrid.innerHTML += `
+                        <div class="window-card active">
+                            <div class="window-header"><span>REGISTRAR WINDOW</span><strong>${windowId}</strong></div>
+                            <div class="queue-number">${queue.queue_number}</div>
+                            <div class="window-status">NOW SERVING</div>
+                        </div>`;
+                } else {
+                    windowsGrid.innerHTML += `
+                        <div class="window-card available">
+                            <div class="window-header"><span>REGISTRAR WINDOW</span><strong>${windowId}</strong></div>
+                            <div class="queue-number">—</div>
+                            <div class="window-status">AVAILABLE</div>
+                        </div>`;
+                }
+            }
+
+            const keys = Object.keys(data.windows);
+            if (keys.length > 0) {
+                const latestWin = keys[keys.length - 1];
+                const latestQueue = data.windows[latestWin];
+                document.getElementById('latest-queue').innerText = latestQueue.queue_number;
+                document.getElementById('latest-window').innerText = `REGISTRAR WINDOW ${latestWin.replace(/^0+/, '')}`;
+            } else {
+                document.getElementById('latest-queue').innerText = '—';
+                document.getElementById('latest-window').innerText = 'REGISTRAR WINDOW';
+            }
+
+            const nextList = document.getElementById('next-list');
+            nextList.innerHTML = '';
+            if (data.waiting.length > 0) {
+                data.waiting.forEach(w => {
+                    nextList.innerHTML += `<div class="next-item"><span>${w.queue_number}</span></div>`;
+                });
+            } else {
+                nextList.innerHTML = `<div class="next-item" style="opacity: 0.5;"><span>—</span></div>`;
+            }
+        }
+
+        // --- VOICE ANNOUNCEMENT ---
+        function checkForNewCalls(data) {
+            Object.entries(data.windows).forEach(([winNum, queue]) => {
+                if (lastAnnounced[winNum] !== queue.queue_number) {
+                    lastAnnounced[winNum] = queue.queue_number;
+                    voiceQueue.push({ window: winNum, queue: queue.queue_number });
+                }
+            });
+            processVoiceQueue();
+        }
+
+        async function processVoiceQueue() {
+            if (isBusySpeaking || voiceQueue.length === 0) return;
             isBusySpeaking = true;
 
-            const spokenNumber = queueNum.split('').join(' ');
-            
+            const nextCall = voiceQueue.shift();
+            // Add spaces between letters so it says "A - 0 - 0 - 1"
+            const spokenNumber = nextCall.queue.split('').join(' ');
+            const spokenWindow = nextCall.window.replace(/^0+/, '');
+
             for (let i = 0; i < 3; i++) {
-                const message = `Queue number ${spokenNumber}, please proceed to Registrar Window ${winNum}`;
+                // Natural phrasing
+                const message = `Queue number ${spokenNumber}, please proceed to Registrar Window ${spokenWindow}`;
                 const utterance = new SpeechSynthesisUtterance(message);
                 
-                // Find Male Voice
+                // Find the best male voice available on the system
                 const voices = window.speechSynthesis.getVoices();
                 let selectedVoice = voices.find(v => 
                     v.name === 'Google UK English Male' || 
@@ -164,61 +189,30 @@
                 
                 if (selectedVoice) utterance.voice = selectedVoice;
                 
-                utterance.rate = 0.85;
-                utterance.pitch = 0.85;
-                utterance.volume = 1;
+                // --- HUMAN VOICE TUNING ---
+                utterance.rate = 0.8;    // Speaks a bit slower (more professional)
+                utterance.pitch = 0.85;  // Slightly deeper tone
+                utterance.volume = 1;    // Maximum volume
 
                 await new Promise(resolve => {
                     utterance.onend = resolve;
                     window.speechSynthesis.speak(utterance);
                 });
 
+                // Pause for 1.5 seconds between the 3 repeats
                 if (i < 2) await new Promise(r => setTimeout(r, 1500));
             }
             
             isBusySpeaking = false;
+            processVoiceQueue(); // Check if there is another number waiting to be announced
         }
 
-        function checkForNewCalls() {
-            activeWindows.forEach(active => {
-                const winNum = active.window;
-                const queueNum = active.queue;
-
-                if (lastAnnounced[winNum] !== queueNum) {
-                    lastAnnounced[winNum] = queueNum;
-                    speakAnnouncement(winNum, queueNum);
-                }
-            });
-        }
-
-        window.onload = function() {
-            setTimeout(checkForNewCalls, 1000);
-        };
-
-        // Auto-Refresh (Waits if speaking so it doesn't cut off)
+        // Clock Update
         setInterval(() => {
-            if (isBusySpeaking || window.speechSynthesis.speaking) return; 
-
-            fetch(window.location.href)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const scripts = doc.querySelectorAll('script');
-                    let newActiveWindows = [];
-                    
-                    scripts.forEach(s => {
-                        if (s.textContent.includes('const activeWindows =')) {
-                            const match = s.textContent.match(/const activeWindows = (\[[\s\S]*?\]);/);
-                            if (match) newActiveWindows = eval(match[1]);
-                        }
-                    });
-
-                    if(JSON.stringify(activeWindows) !== JSON.stringify(newActiveWindows)) {
-                        window.location.reload(); 
-                    }
-                });
-        }, 5000);
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('current-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        }, 1000);
     </script>
 </body>
 </html>

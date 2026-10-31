@@ -9,19 +9,23 @@ class DisplayController extends Controller
 {
     public function index()
     {
-        $servingQueues = Queue::where('status', 'serving')->get();
+        return view('display.index');
+    }
 
-        // Get the next 5 students waiting and ONLY select the queue_number
-        $waiting = Queue::where('status', 'waiting')
-            ->orderBy('id', 'asc')
-            ->take(5)
-            ->get();
+    // A fast endpoint for the TV to fetch data every second
+    public function getData()
+    {
+        $servingQueues = Queue::where('status', 'serving')->get();
+        $waiting = Queue::where('status', 'waiting')->orderBy('id', 'asc')->take(5)->get();
 
         $windows = [];
         foreach ($servingQueues as $q) {
             $windows[$q->window_number] = $q;
         }
 
-        return view('display.index', compact('windows', 'waiting'));
+        return response()->json([
+            'windows' => $windows,
+            'waiting' => $waiting,
+        ]);
     }
 }
