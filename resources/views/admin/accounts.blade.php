@@ -11,7 +11,7 @@
             {{ session('success') }}
         </div>
     @endif
-    
+
     @if($errors->any())
         <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;">
             <ul>
@@ -23,13 +23,13 @@
     @endif
 
     <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-top: 20px;">
-        
+
         <!-- ADD STAFF FORM -->
         <div class="window-card" style="height: fit-content;">
-            <div class="window-header" style="padding-bottom: 10px; border-bottom: 1px solid #eee;">
+            <div class="window-header" style="padding-bottom: 10px; border-bottom: 1px solid var(--color-border);">
                 <div>
                     <h3 style="margin: 0;">Add New Staff</h3>
-                    <p style="font-size: 13px; color: #666; margin-top: 5px;">Create a login for a window.</p>
+                    <p style="font-size: 13px; color: var(--color-muted); margin-top: 5px;">Create a login for a window.</p>
                 </div>
             </div>
             <div style="padding: 20px;">
@@ -37,24 +37,24 @@
                     @csrf
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Staff Name</label>
-                        <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. Maria Clara" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                        <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. Maria Clara" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Email</label>
-                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="maria@tcc.edu.ph" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="maria@tcc.edu.ph" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Password</label>
-                        <input type="password" name="password" required placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                        <input type="password" name="password" required placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                     </div>
                     @if($windows->isEmpty())
-                        <div style="background: #fef3c7; color: #92400e; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;">
-                            No windows exist yet. <a href="{{ route('admin.windows') }}" style="font-weight: bold; color: #92400e;">Add a window first</a>, then create the staff account.
+                        <div style="background: #fbf3e0; color: #8a5f10; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;">
+                            No windows exist yet. <a href="{{ route('admin.windows') }}" style="font-weight: bold; color: #8a5f10;">Add a window first</a>, then create the staff account.
                         </div>
                     @endif
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Assigned Window</label>
-                        <select name="window_number" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                        <select name="window_number" required style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                             @foreach($windows as $win)
                                 <option value="{{ $win->window_number }}" {{ old('window_number') == $win->window_number ? 'selected' : '' }}>
                                     {{ $win->name }} (Window {{ $win->window_number }})
@@ -82,7 +82,7 @@
                                 <td>{{ $s->email }}</td>
                                 <td>
                                     @if($s->window_number)
-                                        <span class="status-badge" style="background: #f3f4f6; color: #374151; border: 1px solid #d1d5db;">Window {{ $s->window_number }}</span>
+                                        <span class="status-badge" style="background: var(--color-bg); color: var(--color-text); border: 1px solid var(--color-border);">Window {{ $s->window_number }}</span>
                                     @else
                                         <span class="status-badge" style="background: #fee2e2; color: #991b1b;">Not Assigned</span>
                                     @endif

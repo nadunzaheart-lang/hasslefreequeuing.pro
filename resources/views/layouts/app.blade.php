@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Dashboard') - Registrar Queuing System</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/signout.css') }}">
 </head>
 <body>
 
@@ -61,8 +65,9 @@
                     <strong>{{ Auth::user()->name }}</strong>
                     <span>System Admin</span>
                 </div>
-                <a href="{{ route('logout') }}" class="more-button" style="color: #dc2626; cursor: pointer; text-decoration: none;" title="Log Out">↪</a>
             </div>
+
+            @include('partials.signout')
         </div>
     </aside>
 
@@ -70,6 +75,7 @@
         <header class="topbar">
             <div class="topbar-left">
                 <button class="mobile-menu-button" id="menuButton">☰</button>
+                <img src="{{ asset('images/logo.png') }}" alt="TCC Logo" class="topbar-logo">
                 <div>
                     <h1>@yield('page-title', 'Dashboard')</h1>
                     <p>@yield('page-description', 'Monitor and manage the registrar queue.')</p>
@@ -95,6 +101,7 @@
 </div>
 
 <script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ asset('js/signout.js') }}"></script>
 @yield('scripts')
 </body>
 </html>

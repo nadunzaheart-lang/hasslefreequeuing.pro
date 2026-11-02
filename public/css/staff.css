@@ -4,33 +4,42 @@
    ========================================================= */
 
 :root {
+    /* ---- System color palette ---- */
+    --color-primary: #4e0a10;
+    --color-primary-dark: #3a070c;
+    --color-primary-light: #640d14;
+    --color-accent: #C9952A;
+    --color-accent-light: #F5C842;
+    --color-bg: #F7F4F0;
+    --color-surface: #FFFFFF;
+    --color-sidebar-bg: #4e0a10;
+    --color-sidebar-text: #E8D5C4;
+    --color-text: #1A1410;
+    --color-muted: #7A6E67;
+    --color-border: #E2D9D0;
 
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --primary-light: #eff6ff;
+    /* ---- Legacy variable names mapped to the palette ---- */
+    --primary: var(--color-primary);
+    --primary-dark: var(--color-primary-dark);
+    --primary-light: #f6e9ea;
 
     --success: #16a34a;
     --success-light: #f0fdf4;
-
-    --warning: #f59e0b;
-    --warning-light: #fffbeb;
-
+    --warning: var(--color-accent);
+    --warning-light: #fbf3e0;
     --danger: #dc2626;
     --danger-light: #fef2f2;
 
-    --background: #f6f8fc;
+    --background: var(--color-bg);
+    --white: var(--color-surface);
 
-    --white: #ffffff;
+    --text-dark: var(--color-text);
+    --text: var(--color-text);
+    --text-light: var(--color-muted);
+    --text-muted: var(--color-muted);
 
-    --text-dark: #172033;
-    --text: #374151;
-    --text-light: #6b7280;
-    --text-muted: #9ca3af;
-
-    --border: #e5e7eb;
-
+    --border: var(--color-border);
     --sidebar-width: 245px;
-
 }
 
 
@@ -104,9 +113,9 @@ a {
     left: 0;
     top: 0;
 
-    background: var(--white);
+    background: var(--color-sidebar-bg);
 
-    border-right: 1px solid var(--border);
+    border-right: 1px solid var(--color-primary-dark);
 
     display: flex;
 
@@ -131,7 +140,7 @@ a {
 
     align-items: center;
 
-    border-bottom: 1px solid #f1f2f5;
+    border-bottom: 1px solid rgba(232, 213, 196, 0.15);
 
 }
 
@@ -163,7 +172,7 @@ a {
 
     font-size: 15px;
 
-    color: var(--text-dark);
+    color: var(--color-accent-light);
 
     line-height: 1.2;
 
@@ -175,7 +184,7 @@ a {
 
     font-size: 9px;
 
-    color: var(--text-muted);
+    color: var(--color-sidebar-text);
 
     margin-top: 2px;
 
@@ -190,9 +199,9 @@ a {
 
     padding: 15px;
 
-    background: var(--primary-light);
+    background: var(--color-primary-light);
 
-    border: 1px solid #dbeafe;
+    border: 1px solid rgba(201, 149, 42, 0.45);
 
     border-radius: 10px;
 
@@ -206,7 +215,7 @@ a {
 
     font-weight: 700;
 
-    color: #6b8bc5;
+    color: var(--color-accent);
 
     letter-spacing: 0.6px;
 
@@ -214,7 +223,7 @@ a {
 
 .window-profile-number {
 
-    color: var(--primary);
+    color: var(--color-accent-light);
 
     font-size: 19px;
 
@@ -236,7 +245,7 @@ a {
 
     font-size: 9px;
 
-    color: var(--success);
+    color: #86efac;
 
     font-weight: 600;
 
@@ -272,7 +281,7 @@ a {
 
     font-size: 9px;
 
-    color: var(--text-muted);
+    color: var(--color-accent);
 
     font-weight: 700;
 
@@ -294,7 +303,7 @@ a {
 
     border-radius: 8px;
 
-    color: var(--text-light);
+    color: var(--color-sidebar-text);
 
     font-size: 11px;
 
@@ -306,19 +315,21 @@ a {
 
 .staff-nav-item:hover {
 
-    background: #f8fafc;
+    background: rgba(255, 255, 255, 0.08);
 
-    color: var(--text-dark);
+    color: #ffffff;
 
 }
 
 .staff-nav-item.active {
 
-    color: var(--primary);
+    color: var(--color-accent-light);
 
-    background: var(--primary-light);
+    background: var(--color-primary-light);
 
     font-weight: 600;
+
+    box-shadow: inset 3px 0 0 var(--color-accent);
 
 }
 
@@ -341,7 +352,7 @@ a {
 
     padding: 14px;
 
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(232, 213, 196, 0.15);
 
 }
 
@@ -363,9 +374,9 @@ a {
 
     border-radius: 50%;
 
-    background: #dbeafe;
+    background: var(--color-accent);
 
-    color: var(--primary);
+    color: var(--color-primary-dark);
 
     display: flex;
 
@@ -388,7 +399,7 @@ a {
 
     display: block;
 
-    color: var(--text-dark);
+    color: #ffffff;
 
     font-size: 10px;
 
@@ -398,7 +409,7 @@ a {
 
     display: block;
 
-    color: var(--text-muted);
+    color: var(--color-sidebar-text);
 
     font-size: 8px;
 
@@ -434,7 +445,7 @@ a {
 
 .logout-button:hover {
 
-    background: #f8fafc;
+    background: var(--color-bg);
 
 }
 
@@ -700,7 +711,7 @@ a {
 
     background: var(--warning-light);
 
-    color: #b45309;
+    color: #8a5f10;
 
 }
 
@@ -736,7 +747,7 @@ a {
     gap: 20px;
 
     box-shadow:
-        0 4px 15px rgba(15, 23, 42, 0.04);
+        0 4px 15px rgba(26, 20, 16, 0.05);
 
 }
 
@@ -802,7 +813,7 @@ a {
 
     border-radius: 10px;
 
-    background: #eff6ff;
+    background: #f6e9ea;
 
     color: var(--primary);
 
@@ -934,7 +945,7 @@ a {
 
     color: var(--primary);
 
-    border-color: #bfdbfe;
+    border-color: var(--color-border);
 
 }
 
@@ -1001,7 +1012,7 @@ a {
 
     padding: 0 18px;
 
-    border-bottom: 1px solid #f0f2f5;
+    border-bottom: 1px solid var(--color-border);
 
 }
 
@@ -1013,7 +1024,7 @@ a {
 
 .next-queue-item:hover {
 
-    background: #fafcff;
+    background: #fbf8f4;
 
 }
 
@@ -1095,7 +1106,7 @@ a {
     gap: 13px;
 
     box-shadow:
-        0 7px 18px rgba(37, 99, 235, 0.14);
+        0 7px 18px rgba(78, 10, 16, 0.22);
 
 }
 
@@ -1266,7 +1277,7 @@ a {
 
     padding: 12px 16px;
 
-    background: #172033;
+    background: var(--color-primary-dark);
 
     color: white;
 
@@ -1281,7 +1292,7 @@ a {
     font-size: 10px;
 
     box-shadow:
-        0 10px 30px rgba(15, 23, 42, 0.15);
+        0 10px 30px rgba(26, 20, 16, 0.2);
 
     transform: translateY(100px);
 
@@ -1489,4 +1500,33 @@ a {
 
     }
 
+}
+
+
+/* =========================================================
+   LOGO + MENU BUTTONS (palette fixes)
+   ========================================================= */
+
+.staff-brand img {
+    border-radius: 50%;
+    background: var(--color-surface);
+    padding: 2px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* The menu buttons carry inline "background: none", so these need !important
+   for the hover / active states to show */
+.staff-nav-item {
+    color: var(--color-sidebar-text);
+}
+
+.staff-nav-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff;
+}
+
+.staff-nav-item.active {
+    background: var(--color-primary-light) !important;
+    color: var(--color-accent-light);
 }

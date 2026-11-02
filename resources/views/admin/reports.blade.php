@@ -8,11 +8,11 @@
     <!-- DATE FILTER -->
     <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <div>
-            <h3 style="margin: 0; font-size: 18px; color: #1e3a8a;">Report Date</h3>
-            <p style="color: #666; margin: 5px 0 0 0; font-size: 13px;">Select a date to view the queue activity for that day.</p>
+            <h3 style="margin: 0; font-size: 18px; color: var(--color-primary);">Report Date</h3>
+            <p style="color: var(--color-muted); margin: 5px 0 0 0; font-size: 13px;">Select a date to view the queue activity for that day.</p>
         </div>
         <form method="GET" action="{{ route('admin.reports') }}" style="display: flex; gap: 10px;">
-            <input type="date" name="date" value="{{ $date }}" style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit;">
+            <input type="date" name="date" value="{{ $date }}" style="padding: 10px; border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit;">
             <button type="submit" class="primary-button" style="padding: 10px 20px;">View Report</button>
         </form>
     </div>
@@ -38,7 +38,7 @@
 
     <!-- BREAKDOWN TABLES -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-        
+
         <!-- WINDOW BREAKDOWN -->
         <div class="queue-panel">
             <div class="panel-header">
@@ -53,7 +53,7 @@
                         @forelse($windowBreakdown as $w)
                             <tr>
                                 <td>
-                                    <span class="status-badge" style="background: #e0e7ff; color: #3730a3;">
+                                    <span class="status-badge" style="background: #f6e9ea; color: var(--color-primary);">
                                         Window {{ $w->window_number }}
                                     </span>
                                 </td>

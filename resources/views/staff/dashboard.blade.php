@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Window - Staff</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/staff.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/signout.css') }}">
 </head>
 <body>
 
@@ -43,9 +47,7 @@
                     <span>Window Staff</span>
                 </div>
             </div>
-            <a href="{{ route('logout') }}" class="logout-button" style="width: 100%; display: block; text-decoration: none; box-sizing: border-box;">
-                <span>↪</span> Sign Out
-            </a>
+            @include('partials.signout')
         </div>
     </aside>
 
@@ -80,7 +82,7 @@
                 </div>
 
                 <div id="serving-container">
-                    <div class="current-card" style="justify-content: center; padding: 40px; text-align: center; color: #666;">
+                    <div class="current-card" style="justify-content: center; padding: 40px; text-align: center; color: var(--color-muted);">
                         <h3>Loading...</h3>
                     </div>
                 </div>
@@ -108,7 +110,7 @@
                 </div>
 
                 <div class="queue-list" id="waiting-list">
-                    <p style="padding: 20px; color: #666;">Loading...</p>
+                    <p style="padding: 20px; color: var(--color-muted);">Loading...</p>
                 </div>
 
                 <form action="{{ route('staff.call-next') }}" method="POST">
@@ -150,6 +152,7 @@
     </main>
 </div>
 
+<script src="{{ asset('js/signout.js') }}"></script>
 <script>
     let lastQueueCount = 0;
     let audioContext = null;
@@ -169,18 +172,18 @@
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
             }
-            
+
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
+
             oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioContext.currentTime); 
+            oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
             gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
+
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.5);
         } catch (e) {
@@ -200,7 +203,7 @@
             .then(res => res.json())
             .then(data => {
                 renderUI(data);
-                setTimeout(fetchData, 1000); 
+                setTimeout(fetchData, 1000);
             })
             .catch(err => {
                 console.log("Error fetching data:", err);
@@ -240,7 +243,7 @@
             btnComplete.disabled = false;
         } else {
             servingContainer.innerHTML = `
-                <div class="current-card" style="justify-content: center; padding: 40px; text-align: center; color: #666;">
+                <div class="current-card" style="justify-content: center; padding: 40px; text-align: center; color: var(--color-muted);">
                     <h3>No student currently serving.</h3>
                     <p>Click "Call Next Student" below to start.</p>
                 </div>`;
@@ -269,7 +272,7 @@
             btnCallNext.disabled = false;
             callNextText.innerText = `${data.waiting[0].queue_number} will be called to Window ${data.windowNumber}`;
         } else {
-            waitingList.innerHTML = `<p style="padding: 20px; color: #666;">No students waiting.</p>`;
+            waitingList.innerHTML = `<p style="padding: 20px; color: var(--color-muted);">No students waiting.</p>`;
             btnCallNext.disabled = true;
             callNextText.innerText = `No students waiting`;
         }

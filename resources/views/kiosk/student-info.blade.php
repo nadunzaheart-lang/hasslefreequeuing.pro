@@ -10,6 +10,19 @@
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         .kiosk-screen { height: 100vh; display: flex; flex-direction: column; }
         .form-screen { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .form-heading { width: 100%; max-width: 800px; text-align: left; }
+
+        /* Input validation feedback (red = invalid, green = valid) */
+        .form-group input.is-invalid,
+        .form-group input.is-invalid:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.20);
+        }
+        .form-group input.is-valid,
+        .form-group input.is-valid:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.20);
+        }
     </style>
 </head>
 <body class="kiosk-body">
@@ -37,7 +50,7 @@
             @csrf
             <div class="form-group">
                 <label for="student_id">Student ID</label>
-                <input type="text" id="student_id" name="student_id" placeholder="Enter your Student ID" autocomplete="off" required>
+                <input type="text" id="student_id" name="student_id" placeholder="Enter your Student ID" autocomplete="off" inputmode="numeric" maxlength="8" pattern="[0-9]{8}" title="Student ID must be exactly 8 digits" required>
             </div>
 
             <div class="form-row">
@@ -88,5 +101,73 @@
         <span>Step 1 of 3</span>
     </footer>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var studentId = document.getElementById('student_id');
+    var firstName = document.getElementById('first_name');
+    var lastName  = document.getElementById('last_name');
+
+    function setState(input, state) {
+        input.classList.remove('is-valid', 'is-invalid');
+        if (state) input.classList.add(state);
+    }
+
+    // sanitize: strips disallowed characters
+    // isValid:  true when the value is acceptable (turns green)
+    function attachValidation(input, sanitize, isValid) {
+        var timer = null;
+
+        function refresh() {
+            if (input.value === '') { setState(input, null); }
+            else if (isValid(input.value)) { setState(input, 'is-valid'); }
+            else { setState(input, null); }
+        }
+
+        input.addEventListener('input', function () {
+            var before = input.value;
+            var cleaned = sanitize(before);
+
+            if (cleaned !== before) {
+                // keep the caret where the user was typing
+                var caret = input.selectionStart;
+                var removedBeforeCaret = before.slice(0, caret).length - sanitize(before.slice(0, caret)).length;
+                input.value = cleaned;
+                try { input.setSelectionRange(caret - removedBeforeCaret, caret - removedBeforeCaret); } catch (e) {}
+
+                // blocked character: flash red, then show the real state
+                setState(input, 'is-invalid');
+                clearTimeout(timer);
+                timer = setTimeout(refresh, 1200);
+            } else {
+                clearTimeout(timer);
+                refresh();
+            }
+        });
+
+        // leaving the field with incomplete / invalid info -> red
+        input.addEventListener('blur', function () {
+            clearTimeout(timer);
+            if (input.value === '') { setState(input, null); }
+            else if (isValid(input.value)) { setState(input, 'is-valid'); }
+            else { setState(input, 'is-invalid'); }
+        });
+    }
+
+    // Student ID: digits only, exactly 8
+    attachValidation(
+        studentId,
+        function (v) { return v.replace(/\D/g, '').slice(0, 8); },
+        function (v) { return /^[0-9]{8}$/.test(v); }
+    );
+
+    // First / Last name: letters and spaces only (spaces allowed for multiple names)
+    function sanitizeName(v) { return v.replace(/[^\p{L}\p{M} ]/gu, ''); }
+    function isValidName(v) { return v.trim() !== '' && /\p{L}/u.test(v); }
+
+    attachValidation(firstName, sanitizeName, isValidName);
+    attachValidation(lastName,  sanitizeName, isValidName);
+});
+</script>
 </body>
 </html>

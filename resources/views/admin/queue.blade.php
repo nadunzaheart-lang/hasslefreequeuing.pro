@@ -36,7 +36,7 @@
                             <tr>
                                 <td><span class="queue-number">{{ $w->queue_number }}</span></td>
                                 <td>{{ $w->student_name }}</td>
-                                <td><span class="status-badge" style="background: #f3f4f6; color: #374151;">Window {{ $w->window_number }}</span></td>
+                                <td><span class="status-badge" style="background: var(--color-bg); color: var(--color-text);">Window {{ $w->window_number }}</span></td>
                             </tr>
                         @empty
                             <tr><td colspan="3" style="text-align: center; padding: 20px;">No students waiting.</td></tr>

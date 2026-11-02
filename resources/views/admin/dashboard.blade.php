@@ -167,26 +167,26 @@
     <!-- MANUAL QUEUE MODAL -->
     <div id="manualQueueModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
         <div style="background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-            <h3 style="margin-top: 0; color: #1e3a8a;">Generate Manual Queue</h3>
-            <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Use this if the Kiosk is offline or for VIP walk-ins.</p>
-            
+            <h3 style="margin-top: 0; color: var(--color-primary);">Generate Manual Queue</h3>
+            <p style="font-size: 13px; color: var(--color-muted); margin-bottom: 20px;">Use this if the Kiosk is offline or for VIP walk-ins.</p>
+
             <form action="{{ route('admin.manual-queue') }}" method="POST">
                 @csrf
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Student Name</label>
-                    <input type="text" name="student_name" required placeholder="e.g. Juan Dela Cruz" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                    <input type="text" name="student_name" required placeholder="e.g. Juan Dela Cruz" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                 </div>
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Assign to Window</label>
-                    <select name="window_number" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                    <select name="window_number" required style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                         @foreach($allWindows as $win)
                             <option value="{{ $win }}">Window {{ $win }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button type="button" onclick="closeModal()" style="flex: 1; padding: 12px; background: #eee; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Cancel</button>
-                    <button type="submit" style="flex: 1; padding: 12px; background: #1e3a8a; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Generate</button>
+                    <button type="button" onclick="closeModal()" style="flex: 1; padding: 12px; background: var(--color-bg); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Cancel</button>
+                    <button type="submit" style="flex: 1; padding: 12px; background: var(--color-primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Generate</button>
                 </div>
             </form>
         </div>
