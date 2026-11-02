@@ -9,6 +9,14 @@
 </head>
 <body>
 
+    <div id="sound-overlay" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);color:#fff;font-family:sans-serif;text-align:center;cursor:pointer;">
+        <div>
+            <div style="font-size:64px;">🔊</div>
+            <div style="font-size:32px;font-weight:700;margin-top:12px;">Click anywhere to enable voice announcements</div>
+            <div style="font-size:18px;opacity:0.8;margin-top:8px;">Required once by the browser each time this page is opened</div>
+        </div>
+    </div>
+
     <div class="display-screen" id="display-screen">
         <header class="display-header">
             <div class="school-brand">
@@ -75,6 +83,10 @@
         let lastAnnounced = {};
         let isBusySpeaking = false;
         let voiceQueue = [];
+        let audioUnlocked = false;
+        let firstLoadDone = false;
+        let cachedVoice = null;
+        const liveUtterances = [];
 
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
@@ -84,30 +96,99 @@
             }
         }
 
-        // Unlock audio on first click
+        // --- VOICE SETUP ---
+        function scoreVoice(v) {
+            let score = 0;
+            if (/natural|neural/i.test(v.name)) score += 100; 
+            if (/online/i.test(v.name)) score += 40;
+            if (/^Google (US|UK) English/i.test(v.name)) score += 60;
+            if (/Aria|Jenny|Guy|Davis|Ryan|Sonia|Samantha|Daniel|Karen|Moira/i.test(v.name)) score += 30;
+            if (/desktop|espeak|compact/i.test(v.name)) score -= 50;
+            if (/^en[-_](US|GB|PH|AU)/i.test(v.lang)) score += 10;
+            if (v.localService === false) score += 5;
+            return score;
+        }
+
+        function englishVoices() {
+            return window.speechSynthesis.getVoices()
+                .filter(v => /^en[-_]/i.test(v.lang))
+                .sort((a, b) => scoreVoice(b) - scoreVoice(a));
+        }
+
+        function pickVoice() {
+            const list = englishVoices();
+            if (!list.length) return null;
+            let saved = null;
+            try { saved = localStorage.getItem('displayVoice'); } catch (e) {}
+            return list.find(v => v.name === saved) || list[0];
+        }
+
+        function showToast(text) {
+            let t = document.getElementById('voice-toast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'voice-toast';
+                t.style.cssText = 'position:fixed;bottom:16px;right:16px;z-index:9998;background:rgba(0,0,0,0.8);color:#fff;padding:10px 16px;border-radius:8px;font:16px sans-serif;';
+                document.body.appendChild(t);
+            }
+            t.textContent = text;
+            clearTimeout(t._h);
+            t._h = setTimeout(() => t.remove(), 4000);
+        }
+
+        function cycleVoice() {
+            const list = englishVoices();
+            if (!list.length) { showToast('No English voices found on this computer'); return; }
+            const i = list.findIndex(v => cachedVoice && v.name === cachedVoice.name);
+            cachedVoice = list[(i + 1) % list.length];
+            try { localStorage.setItem('displayVoice', cachedVoice.name); } catch (e) {}
+            showToast('Voice: ' + cachedVoice.name);
+            speak('Queue number A, Zero Zero One. Please proceed to Registrar Window 1.');
+        }
+
+        function refreshVoice() {
+            cachedVoice = pickVoice();
+        }
+
+        if ('speechSynthesis' in window) {
+            refreshVoice();
+            window.speechSynthesis.onvoiceschanged = refreshVoice;
+        }
+
+        function unlockAudio() {
+            if (audioUnlocked || !('speechSynthesis' in window)) return;
+            audioUnlocked = true;
+            speak('Voice announcements enabled.'); 
+            const overlay = document.getElementById('sound-overlay');
+            if (overlay) overlay.remove();
+            processVoiceQueue();
+        }
+        window.addEventListener('click', unlockAudio);
+        window.addEventListener('keydown', unlockAudio);
+        window.addEventListener('keydown', (e) => {
+            if (audioUnlocked && (e.key === 'v' || e.key === 'V')) cycleVoice();
+        });
+        window.addEventListener('touchstart', unlockAudio);
+
         window.addEventListener('load', () => {
-            let silentUtterance = new SpeechSynthesisUtterance(" ");
-            silentUtterance.volume = 0;
-            window.speechSynthesis.speak(silentUtterance);
-            fetchData(); // Start fetching immediately
+            fetchData(); 
         });
 
-        // --- FAST FETCH DATA ---
         function fetchData() {
             fetch('/display/data')
                 .then(response => response.json())
                 .then(data => {
                     renderUI(data);
                     checkForNewCalls(data);
-                    setTimeout(fetchData, 1000); // Fetch again 1 second later
+                    firstLoadDone = true;
+                    setTimeout(fetchData, 1000);
                 })
                 .catch(err => {
                     console.log("Error fetching data:", err);
-                    setTimeout(fetchData, 3000); // Retry after 3 seconds if error
+                    setTimeout(fetchData, 3000); 
                 });
         }
 
-        // --- UPDATE THE UI ---
         function renderUI(data) {
             const windowsGrid = document.getElementById('windows-grid');
             windowsGrid.innerHTML = '';
@@ -155,60 +236,100 @@
             }
         }
 
-        // --- VOICE ANNOUNCEMENT ---
         function checkForNewCalls(data) {
             Object.entries(data.windows).forEach(([winNum, queue]) => {
                 if (lastAnnounced[winNum] !== queue.queue_number) {
                     lastAnnounced[winNum] = queue.queue_number;
-                    voiceQueue.push({ window: winNum, queue: queue.queue_number });
+                    if (firstLoadDone && audioUnlocked) {
+                        voiceQueue.push({ window: winNum, queue: queue.queue_number });
+                    }
                 }
             });
+
+            Object.keys(lastAnnounced).forEach(winNum => {
+                if (!data.windows[winNum]) delete lastAnnounced[winNum];
+            });
+
             processVoiceQueue();
         }
 
-        async function processVoiceQueue() {
-            if (isBusySpeaking || voiceQueue.length === 0) return;
-            isBusySpeaking = true;
-
-            const nextCall = voiceQueue.shift();
-            // Add spaces between letters so it says "A - 0 - 0 - 1"
-            const spokenNumber = nextCall.queue.split('').join(' ');
-            const spokenWindow = nextCall.window.replace(/^0+/, '');
-
-            for (let i = 0; i < 3; i++) {
-                // Natural phrasing
-                const message = `Queue number ${spokenNumber}, please proceed to Registrar Window ${spokenWindow}`;
-                const utterance = new SpeechSynthesisUtterance(message);
-
-                // Find the best male voice available on the system
-                const voices = window.speechSynthesis.getVoices();
-                let selectedVoice = voices.find(v =>
-                    v.name === 'Google UK English Male' ||
-                    v.name === 'Microsoft David - English (United States)' ||
-                    v.name.includes('Male')
-                );
-
-                if (selectedVoice) utterance.voice = selectedVoice;
-
-                // --- HUMAN VOICE TUNING ---
-                utterance.rate = 0.8;    // Speaks a bit slower (more professional)
-                utterance.pitch = 0.85;  // Slightly deeper tone
-                utterance.volume = 1;    // Maximum volume
-
-                await new Promise(resolve => {
-                    utterance.onend = resolve;
-                    window.speechSynthesis.speak(utterance);
-                });
-
-                // Pause for 1.5 seconds between the 3 repeats
-                if (i < 2) await new Promise(r => setTimeout(r, 1500));
+        // "A-001" -> "A, Zero Zero One" (Forcing the AI to say Zero)
+        function spellQueueNumber(queueNumber) {
+            const m = String(queueNumber).trim().match(/^([A-Za-z]+)[\s-]*(\d+)$/);
+            const numberMap = {'0':'Zero','1':'One','2':'Two','3':'Three','4':'Four','5':'Five','6':'Six','7':'Seven','8':'Eight','9':'Nine'};
+            
+            if (m) {
+                // Spell out the letter and then convert each number to a word
+                const letter = m[1].split('').join(' ');
+                const numbers = m[2].split('').map(num => numberMap[num]).join(' ');
+                return `${letter}, ${numbers}`;
             }
-
-            isBusySpeaking = false;
-            processVoiceQueue(); // Check if there is another number waiting to be announced
+            
+            // Fallback for weird formats
+            return String(queueNumber).replace(/[^A-Za-z0-9]/g, '').split('').map(char => numberMap[char] || char).join(' ');
         }
 
-        // Clock Update
+        function speak(message) {
+            return new Promise(resolve => {
+                const synth = window.speechSynthesis;
+                const utterance = new SpeechSynthesisUtterance(message);
+                liveUtterances.push(utterance);
+
+                if (!cachedVoice) refreshVoice();
+                if (cachedVoice) {
+                    utterance.voice = cachedVoice;
+                    utterance.lang = cachedVoice.lang;
+                } else {
+                    utterance.lang = 'en-US';
+                }
+
+                utterance.rate = 0.85; 
+                utterance.pitch = 0.95; 
+                utterance.volume = 1;
+
+                let done = false;
+                const finish = () => {
+                    if (done) return;
+                    done = true;
+                    clearTimeout(timer);
+                    const i = liveUtterances.indexOf(utterance);
+                    if (i !== -1) liveUtterances.splice(i, 1);
+                    setTimeout(resolve, 300); 
+                };
+                const timer = setTimeout(finish, 15000); 
+
+                utterance.onend = finish;
+                utterance.onerror = (e) => { console.log('Speech error:', e.error); finish(); };
+
+                try { synth.resume(); } catch (e) {}
+                synth.speak(utterance);
+            });
+        }
+
+        async function processVoiceQueue() {
+            if (!('speechSynthesis' in window)) return;
+            if (!audioUnlocked || isBusySpeaking || voiceQueue.length === 0) return;
+            isBusySpeaking = true;
+
+            try {
+                const nextCall = voiceQueue.shift();
+                const spokenNumber = spellQueueNumber(nextCall.queue);
+                const spokenWindow = nextCall.window.replace(/^0+/, '');
+                const message = `Queue number ${spokenNumber}. Please proceed to Registrar Window ${spokenWindow}.`;
+
+                for (let i = 0; i < 3; i++) {
+                    await speak(message);
+                    if (i < 2) await new Promise(r => setTimeout(r, 1000));
+                }
+            } catch (err) {
+                console.log('Voice announcement error:', err);
+            } finally {
+                isBusySpeaking = false;
+            }
+
+            processVoiceQueue(); 
+        }
+
         setInterval(() => {
             const now = new Date();
             document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });

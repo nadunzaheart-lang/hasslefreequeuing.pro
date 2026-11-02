@@ -9,13 +9,12 @@ class StaffController extends Controller
 {
     public function dashboard()
     {
-        // THIS IS THE MAGIC LINE: Get the window directly from the logged-in user
-        $windowNumber = auth()->user()->window_number;
+        return view('staff.dashboard');
+    }
 
-        // If they somehow don't have a window, kick them out
-        if (!$windowNumber) {
-            return redirect('/login')->withErrors(['email' => 'No window assigned to this account. Contact Admin.']);
-        }
+    public function getData()
+    {
+        $windowNumber = auth()->user()->window_number ?? '01';
 
         $serving = Queue::where('status', 'serving')
             ->where('window_number', $windowNumber)
@@ -31,12 +30,18 @@ class StaffController extends Controller
             ->where('window_number', $windowNumber)
             ->count();
 
-        return view('staff.dashboard', compact('serving', 'waiting', 'waitingCount', 'windowNumber'));
+        return response()->json([
+            'serving' => $serving,
+            'waiting' => $waiting,
+            'waitingCount' => $waitingCount,
+            'windowNumber' => $windowNumber,
+            'timestamp' => now()->timestamp
+        ]);
     }
 
-    public function callNext()
+    public function callNext(Request $request)
     {
-        $windowNumber = auth()->user()->window_number;
+        $windowNumber = auth()->user()->window_number ?? '01';
 
         $current = Queue::where('status', 'serving')->where('window_number', $windowNumber)->first();
         if ($current) {
@@ -51,9 +56,9 @@ class StaffController extends Controller
         return redirect()->route('staff.dashboard');
     }
 
-    public function complete()
+    public function complete(Request $request)
     {
-        $windowNumber = auth()->user()->window_number;
+        $windowNumber = auth()->user()->window_number ?? '01';
         $current = Queue::where('status', 'serving')->where('window_number', $windowNumber)->first();
         if ($current) {
             $current->update(['status' => 'completed']);
@@ -61,9 +66,9 @@ class StaffController extends Controller
         return redirect()->route('staff.dashboard');
     }
 
-    public function skip()
+    public function skip(Request $request)
     {
-        $windowNumber = auth()->user()->window_number;
+        $windowNumber = auth()->user()->window_number ?? '01';
         $current = Queue::where('status', 'serving')->where('window_number', $windowNumber)->first();
         if ($current) {
             $current->update(['status' => 'skipped']);

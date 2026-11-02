@@ -37,27 +37,32 @@
                     @csrf
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Staff Name</label>
-                        <input type="text" name="name" required placeholder="e.g. Maria Clara" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                        <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. Maria Clara" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Email</label>
-                        <input type="email" name="email" required placeholder="maria@tcc.edu.ph" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="maria@tcc.edu.ph" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Password</label>
                         <input type="password" name="password" required placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
                     </div>
+                    @if($windows->isEmpty())
+                        <div style="background: #fef3c7; color: #92400e; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;">
+                            No windows exist yet. <a href="{{ route('admin.windows') }}" style="font-weight: bold; color: #92400e;">Add a window first</a>, then create the staff account.
+                        </div>
+                    @endif
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Assigned Window</label>
                         <select name="window_number" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
-                            <option value="01">Window 01</option>
-                            <option value="02">Window 02</option>
-                            <option value="03">Window 03</option>
-                            <option value="04">Window 04</option>
-                            <option value="05">Window 05</option>
+                            @foreach($windows as $win)
+                                <option value="{{ $win->window_number }}" {{ old('window_number') == $win->window_number ? 'selected' : '' }}>
+                                    {{ $win->name }} (Window {{ $win->window_number }})
+                                </option>
+                            @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="primary-button" style="width: 100%; justify-content: center;">+ Create Staff Account</button>
+                    <button type="submit" class="primary-button" style="width: 100%; justify-content: center;" {{ $windows->isEmpty() ? 'disabled' : '' }}>+ Create Staff Account</button>
                 </form>
             </div>
         </div>
@@ -75,7 +80,13 @@
                             <tr>
                                 <td><strong>{{ $s->name }}</strong></td>
                                 <td>{{ $s->email }}</td>
-                                <td><span class="status-badge" style="background: #f3f4f6; color: #374151; border: 1px solid #d1d5db;">Window {{ $s->window_number }}</span></td>
+                                <td>
+                                    @if($s->window_number)
+                                        <span class="status-badge" style="background: #f3f4f6; color: #374151; border: 1px solid #d1d5db;">Window {{ $s->window_number }}</span>
+                                    @else
+                                        <span class="status-badge" style="background: #fee2e2; color: #991b1b;">Not Assigned</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <form action="{{ route('admin.accounts.delete', $s->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this account?');">
                                         @csrf

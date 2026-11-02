@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Dashboard') - Registrar Queuing System</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/signout.css') }}">
 </head>
 <body>
 
@@ -24,8 +23,8 @@
             <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->is('admin/dashboard') ? 'active' : '' }}">
                 <span class="nav-icon">▦</span> <span>Dashboard</span>
             </a>
-            <a href="#" class="nav-item">
-                <span class="nav-icon">☷</span> <span>Queue</span>
+            <a href="{{ route('admin.queue') }}" class="nav-item {{ request()->is('admin/queue') ? 'active' : '' }}">
+                <span class="nav-icon">☷</span> <span>Queue Monitor</span>
             </a>
             <a href="{{ route('admin.accounts') }}" class="nav-item {{ request()->is('admin/accounts') ? 'active' : '' }}">
                 <span class="nav-icon">♙</span> <span>Accounts</span>
@@ -40,10 +39,10 @@
             <a href="{{ route('admin.history') }}" class="nav-item {{ request()->is('admin/history') ? 'active' : '' }}">
                 <span class="nav-icon">◷</span> <span>Queue History</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ route('admin.reports') }}" class="nav-item {{ request()->is('admin/reports') ? 'active' : '' }}">
                 <span class="nav-icon">▤</span> <span>Reports</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->is('admin/settings') ? 'active' : '' }}">
                 <span class="nav-icon">⚙</span> <span>Settings</span>
             </a>
         </div>
@@ -62,10 +61,8 @@
                     <strong>{{ Auth::user()->name }}</strong>
                     <span>System Admin</span>
                 </div>
+                <a href="{{ route('logout') }}" class="more-button" style="color: #dc2626; cursor: pointer; text-decoration: none;" title="Log Out">↪</a>
             </div>
-
-            <!-- SIGN OUT (button + confirmation modal) -->
-            @include('partials.signout')
         </div>
     </aside>
 
@@ -98,7 +95,6 @@
 </div>
 
 <script src="{{ asset('js/app.js') }}"></script>
-<script src="{{ asset('js/signout.js') }}"></script>
 @yield('scripts')
 </body>
 </html>
